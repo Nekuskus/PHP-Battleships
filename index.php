@@ -7,6 +7,17 @@
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
+    <div id="nav">
+        <ul>
+            <a href="?route=play2d"><li>Graj 2D</li></a>
+            <a href="?route=gen2d"><li>Generuj 2D</li></a>
+            <a href="?route=play3d"><li>Graj 3D</li></a>
+            <a href="?route=gen3d"><li>Generuj 3D</li></a>
+            <!-- TE DWA MAJĄ ONCLICK -->
+            <a><li>Zapisz...</li></a>
+            <a><li>Wczytaj...</li></a>
+        </ul>
+    </div>
     <?php
     function getNameFromNumber($num) { // numeracja kolumny jak z excela, dla ładnego wyświetlania aby nie bawić się w różne symbole ascii
         $numeric = $num % 26;
@@ -392,6 +403,25 @@
     //     }
     //     echo "<br>";
     // }
+
+    echo $_GET['route'];
+    if(isset($_GET['route'])) {
+        switch($_GET['route']) {
+            case 'play2d':
+                break;
+            case 'gen2d':
+                home();
+                break;
+            case 'play3d':
+                
+        }
+    } else {
+        home();
+    }
+
+    function home() {
+
+    }
 
     ?>
 </body>

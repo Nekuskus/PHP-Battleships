@@ -10,8 +10,37 @@ span.cell.full {
     background-color: beige;
 } */
 
+a {
+    text-decoration: none;
+    color: grey;
+
+}
 
 body {
-    background-image: url('./assets/world-war-one-battle-for-command-of-the-seas.jpg');
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url('./assets/USNavy-PacificOcean-rtr-img.jpg');
     background-size: cover;
+}
+
+#nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 5vh;
+    background-color: blanchedalmond;
+    border-bottom: 4px black solid;
+}
+
+#nav li {
+    list-style: none;
+    display: inline;
+    width: 15vw;
+    font-size: x-large;
+    padding-right: 5vw;
+}
+
+/* #nav li:not(:first-child):before */
+#nav li:before {
+    content: " | ";
 }
