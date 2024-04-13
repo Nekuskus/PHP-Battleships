@@ -1,0 +1,17 @@
+/* body {
+    font-size: 25px;
+    font-family: monospace;
+}
+
+span.cell.empty {
+    background-color: white;
+}
+span.cell.full {
+    background-color: beige;
+} */
+
+
+body {
+    background-image: url('./assets/world-war-one-battle-for-command-of-the-seas.jpg');
+    background-size: cover;
+}
