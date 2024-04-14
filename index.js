@@ -39,13 +39,15 @@ if(route == 'play') {
     document.documentElement.style.setProperty('--rows', `repeat(${parseInt(params.get('y-width') ?? '10')+1}, 1fr)`);
 }
 
-function saveTemplate() {
-    window.location.href = window.location.toString().split('/').slice(0, -1).join('/') + '?route=save&payload=' + TEMPLATE_STR.replace('=', '-');
+function saveState() {
+    let dims = atob(TEMPLATE_STR).split(';')[0].replace('TEMPLATE', '');
+
+    console.log(dims + ';' + JSON.stringify(GAME_JSON));
+    window.location.href = window.location.toString().split('/').slice(0, -1).join('/') + '?route=save&payload=' + btoa(dims + ';' + JSON.stringify(GAME_JSON)).replace('=', '-');
 }
 
-function saveState() {
-    
-    // window.location.href = window.location.toString().split('/').slice(0, -1).join('/') + '?route=save&payload=' + TEMPLATE_STR.replace('=', '-');
+function saveTemplate() {
+    window.location.href = window.location.toString().split('/').slice(0, -1).join('/') + '?route=save&payload=' + TEMPLATE_STR.replace('=', '-');
 }
 
 function loadfile() {

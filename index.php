@@ -358,30 +358,30 @@
         }
     }
 
-    function testSerializeTemplate() {
-        $game = new Battleships();
-        $game->inner[4][5] = Field::Ship;
-        $s = $game->serializeTemplate();
-        $reconstructed = Battleships::unserializeTemplate($s);
-        // echo "<pre>";
-        // var_dump($game->inner);
-        // var_dump($reconstructed->inner);
-        // echo "<pre>";
-        echo $game->inner === $reconstructed->inner;
-    }
+    // function testSerializeTemplate() {
+    //     $game = new Battleships();
+    //     $game->inner[4][5] = Field::Ship;
+    //     $s = $game->serializeTemplate();
+    //     $reconstructed = Battleships::unserializeTemplate($s);
+    //     // echo "<pre>";
+    //     // var_dump($game->inner);
+    //     // var_dump($reconstructed->inner);
+    //     // echo "<pre>";
+    //     echo $game->inner === $reconstructed->inner;
+    // }
 
-    function testSerialize() {
-        $game = new Battleships();
-        $game->inner[5][4] = Field::Shot;
-        $game->inner[9][1] = Field::ShipShot;
-        $s = $game->serialize();
-        $reconstructed = Battleships::unserialize($s);
-        // echo "<pre>";
-        // var_dump($game->inner);
-        // var_dump($reconstructed->inner);
-        // echo "<pre>";
-        echo $game->inner === $reconstructed->inner;
-    }
+    // function testSerialize() {
+    //     $game = new Battleships();
+    //     $game->inner[5][4] = Field::Shot;
+    //     $game->inner[9][1] = Field::ShipShot;
+    //     $s = $game->serialize();
+    //     $reconstructed = Battleships::unserialize($s);
+    //     // echo "<pre>";
+    //     // var_dump($game->inner);
+    //     // var_dump($reconstructed->inner);
+    //     // echo "<pre>";
+    //     echo $game->inner === $reconstructed->inner;
+    // }
 
     function settings_panel() {
         echo "<div id='settings-panel'>";
@@ -419,7 +419,9 @@
                     $game = Battleships::unserialize($s);
                 }
                 $template = base64_encode('TEMPLATE' . $game->serializeTemplate());
-                echo "<script>let TEMPLATE_STR = '{$template}';</script>";
+                $json = json_encode($game->inner);
+                echo "<script>let TEMPLATE_STR = '{$template}';
+                let GAME_JSON = {$json};</script>";
                 if($next == 'play') {
                     render_play($game);
                 } else {
@@ -474,7 +476,9 @@
         try {
             $game = new Battleships($x_width, $y_width, $z_width, $ships_parsed);
             $template = base64_encode('TEMPLATE' . $game->serializeTemplate());
-            echo "<script>let TEMPLATE_STR = '{$template}';</script>";
+            $json = json_encode($game->inner);
+            echo "<script>let TEMPLATE_STR = '{$template}';
+            let GAME_JSON = {$json};</script>";
             if($next === 'play') {
                 render_play($game);
             } else {
@@ -580,6 +584,20 @@
             $filename = array_shift($spl) . ';' . time();
             $contents = implode(';', $spl);
             $file = fopen(".\\saves\\{$filename}", "w");
+            if(!str_contains($filename, 'TEMPLATE')) {
+                $contents = json_decode($contents);
+                $s = '';
+                $dims = explode(',', explode(';', $filename)[0]);
+                $z_width = intval($dims[0]);
+                $y_width = intval($dims[1]);
+                $x_width = intval($dims[2]);
+                for ($y=0; $y < $y_width; $y++) { 
+                    for ($x=0; $x < $x_width; $x++) {
+                        $s .= $contents[$y][$x];
+                    }
+                }
+                $contents = $s;
+            }
             if (fwrite($file, $contents) !== false) {
                 echo "<div id='game-wrapper'><div id='game'>";
                 echo "Pomyślnie zapisano do .\\saves\\{$filename} na serwerze.";
