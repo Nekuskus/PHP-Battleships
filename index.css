@@ -137,7 +137,7 @@ div#game div.layer div.cell.empty {
 }
 
 div#game div.layer div.cell.shot {
-    background-color: rgb(59, 58, 58);
+    background-color: rgb(146, 144, 144);
 }
 
 div#game div.layer div.cell.shipshot {

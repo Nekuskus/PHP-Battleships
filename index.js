@@ -34,15 +34,174 @@ if(route == 'displ') {
     document.documentElement.style.setProperty('--rows', `repeat(${parseInt(params.get('y-width') ?? '10')+1}, 1fr)`);
 }
 
+
 if(route == 'play') {
     document.documentElement.style.setProperty('--columns', `repeat(${parseInt(params.get('x-width') ?? '10')+1}, 1fr)`);
     document.documentElement.style.setProperty('--rows', `repeat(${parseInt(params.get('y-width') ?? '10')+1}, 1fr)`);
+    
+    let dims = atob(TEMPLATE_STR).split(';')[0].replace('TEMPLATE', '').split(',');
+    
+    let z_width = parseInt(dims[0]);
+    let y_width = parseInt(dims[1]);
+    let x_width = parseInt(dims[2]);
+    
+    let fields = [...document.querySelectorAll('.field')];
+
+    function fields_index(z, y, x) {
+        return fields[y * x_width + x];
+    }    
+
+    let EMPTY = 0;
+    let SHIP = 1;
+    let SHOT = 2;
+    let SHIPSHOT = 3;
+
+    let score = 0;
+
+    let total = 0;
+    for (let y_idx = 0; y_idx < y_width; y_idx++) {
+        for (let x_idx = 0; x_idx < x_width; x_idx++) {
+            fields[total].addEventListener('click', (el) => {
+                let x = parseInt(el.target.getAttribute('x'));
+                let y = parseInt(el.target.getAttribute('y'));
+                let z = parseInt(el.target.getAttribute('z'));
+                switch(GAME_JSON[y][x]) {
+                    case EMPTY:
+                        el.target.classList.replace("empty", "shot");
+                        score += 1;
+                        break;
+                    case SHIP:
+                        el.target.classList.replace("empty", "shipshot");
+                        score += 1;
+                        break;
+                }
+
+                let search = bfs(z, y, x);
+                if(!search[0]) {
+                    let to_explode = new Set();
+                    if(search[1].length) search[1].forEach(el => {
+                        let [cur_z, cur_y, cur_x] = el;
+                        if(cur_y > 0) {
+                            if(cur_x > 0) {
+                                to_explode.add(fields_index(cur_z, cur_y-1, cur_x-1));
+                            }
+                            to_explode.add(fields_index(cur_z, cur_y-1, cur_x));
+                            if(cur_x < x_width - 1) {
+                                to_explode.add(fields_index(cur_z, cur_y-1, cur_x+1));
+                            }
+                        }
+                        if(cur_x > 0) {
+                            to_explode.add(fields_index(cur_z, cur_y, cur_x-1));
+                        }
+                        if(cur_x < x_width - 1) {
+                            to_explode.add(fields_index(cur_z, cur_y, cur_x+1));
+                        }
+
+                        if(cur_y < y_width - 1) {
+                            if(cur_x > 0) {
+                                to_explode.add(fields_index(cur_z, cur_y+1, cur_x-1));
+                            }
+                            to_explode.add(fields_index(cur_z, cur_y+1, cur_x));
+                            if(cur_x < x_width - 1) {
+                                to_explode.add(fields_index(cur_z, cur_y+1, cur_x+1));
+                            }
+                        }
+                    });
+
+                    to_explode.forEach((f) => {
+                        if(GAME_JSON[parseInt(f.getAttribute('y'))][parseInt(f.getAttribute('x'))] == EMPTY) {
+                            f.classList.replace('empty', 'shot');
+                        }
+                    })
+
+                    if (check_for_win()) {
+                        alert(`Wygrałeś! Wynik: ${Math.max(score - x_width * y_width, 0)} (max(kliknięcia - ilość pól, 0))\nSpoglądaj teraz na swoje zwycięstwo, lub utwórz nową grę aby spróbować ponownie...`)
+                    }
+                }
+            }, { once: true });
+            total += 1;
+        }
+    }
+
+    function check_for_win() {
+        for (let y_idx = 0; y_idx < y_width; y_idx++) {
+            for (let x_idx = 0; x_idx < x_width; x_idx++) {
+                if(GAME_JSON[y_idx][x_idx] == SHIP) {
+                    if(fields_index(0, y_idx, x_idx).classList.contains('ship') || fields_index(0, y_idx, x_idx).classList.contains('empty')) {
+                        return false;
+                    }
+                }
+            }
+        }
+        unset_events();
+        return true;
+    }
+
+    function unset_events() {
+        for (let y_idx = 0; y_idx < y_width; y_idx++) {
+            for (let x_idx = 0; x_idx < x_width; x_idx++) {
+                // removes all event listeners, currently no better alternative in html5
+                let orig = fields_index(0, y_idx, x_idx);
+                let copy = orig.cloneNode(true);
+                orig.parentNode.replaceChild(copy, orig);
+            }
+        }
+    }
+
+    function eq(arr1, arr2) {
+        return arr1.every((val, idx) => {
+            return val === arr2[idx]
+        });
+    }
+
+    function bfs(z, y, x) {
+        const queue = [[z, y, x]];
+        const visited = [];
+        let result1 = false;
+        let result2 = [];
+
+        while (queue.length) {
+            const cur = queue.shift();
+            const [cur_z, cur_y, cur_x] = cur;
+
+            if (!visited.some((val) => {
+                return eq(val, [cur_z, cur_y, cur_x]);
+            })) {
+                visited.push(cur);
+                
+                if(GAME_JSON[cur_y][cur_x] == SHIP) {
+                    if(fields_index(cur_z, cur_y, cur_x).classList.contains('empty')) {
+                        result1 = true;
+                        // result2.push(cur);
+                        return [true, []];
+                    } else if(fields_index(cur_z, cur_y, cur_x).classList.contains('shipshot')) {
+                        result2.push(cur);
+                    }
+
+                    if(cur_y > 0) {
+                        if(GAME_JSON[cur_y-1][cur_x] == SHIP) queue.push([cur_z, cur_y-1, cur_x]);
+                    }
+                    if(cur_y < y_width - 1) {
+                        if(GAME_JSON[cur_y+1][cur_x] == SHIP) queue.push([cur_z, cur_y+1, cur_x]);
+                    }
+                    if(cur_x > 0) {
+                        if(GAME_JSON[cur_y][cur_x-1] == SHIP) queue.push([cur_z, cur_y, cur_x-1]);
+                    }
+                    if(cur_x < x_width - 1) {
+                        if(GAME_JSON[cur_y][cur_x+1] == SHIP) queue.push([cur_z, cur_y, cur_x+1]);
+                    }
+                }
+            }
+        }
+
+        return [result1, result2];
+    }
 }
 
 function saveState() {
     let dims = atob(TEMPLATE_STR).split(';')[0].replace('TEMPLATE', '');
 
-    console.log(dims + ';' + JSON.stringify(GAME_JSON));
+    // console.log(dims + ';' + JSON.stringify(GAME_JSON));
     window.location.href = window.location.toString().split('/').slice(0, -1).join('/') + '?route=save&payload=' + btoa(dims + ';' + JSON.stringify(GAME_JSON)).replace('=', '-');
 }
 

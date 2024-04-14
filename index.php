@@ -514,7 +514,7 @@
         for($y=0; $y < $game->y_width; $y++) {
             echo "<div class='cell label'><span class='coord'>".getNameFromNumber($y)."</span></div>";
             for ($x=0; $x < $game->x_width; $x++) { 
-                echo "<div class='cell field empty'></div>";
+                echo "<div z='0' y='{$y}' x='{$x}' class='cell field empty'></div>";
             }
         }
         echo "</div>";
