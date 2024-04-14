@@ -29,6 +29,10 @@ if (route == null || route == 'set') {
     })
 }
 
+if (route == 'save') {
+    document.getElementById('save-template').classList.add('disabled');
+    document.getElementById('save-state').classList.add('disabled');
+}
 
 let EMPTY = 0;
 let SHIP = 1;
@@ -73,9 +77,9 @@ if(route == 'displ') {
             let outline = (tx == 0 ? '' : "outline: none;");
             let events = (tx == 0 ? '' : 'no-events');
 
-            layer.classList.remove('events');
+            layer.classList.remove('no-events');
             if(events === 'no-events') { // check required or else DOMexception
-                layer.classList.add(events);
+                layer.classList.add('no-events');
             }
             layer.setAttribute('style', `opacity: ${opacity}; transform: translate(${tx}%, ${ty}%);`);
             layer.querySelectorAll('.label').forEach(label => {
@@ -128,9 +132,9 @@ if(route == 'play') {
             let outline = (tx == 0 ? '' : "outline: none;");
             let events = (tx == 0 ? '' : 'no-events');
 
-            layer.classList.remove('events');
+            layer.classList.remove('no-events');
             if(events === 'no-events') { // check required or else DOMexception
-                layer.classList.add(events);
+                layer.classList.add('no-events');
             }
             layer.setAttribute('style', `opacity: ${opacity}; transform: translate(${tx}%, ${ty}%);`);
             layer.querySelectorAll('.label').forEach(label => {
@@ -153,115 +157,139 @@ if(route == 'play') {
                     let x = parseInt(el.target.getAttribute('x'));
                     let y = parseInt(el.target.getAttribute('y'));
                     let z = parseInt(el.target.getAttribute('z'));
-                    switch(GAME_JSON[z][y][x]) {
-                        case EMPTY:
-                            el.target.classList.replace("empty", "shot");
-                            score += 1;
-                            break;
-                        case SHIP:
-                            el.target.classList.replace("empty", "shipshot");
-                            score += 1;
-                            break;
-                    }
-
-                    let search = bfs(z, y, x);
-                    if(!search[0]) {
-                        let to_explode = new Set();
-                        if(search[1].length) search[1].forEach(el => {
-                            let [cur_z, cur_y, cur_x] = el;
-                            if(cur_z > 0) {
-                                if(cur_y > 0) {
-                                    if(cur_x > 0) {
-                                        to_explode.add(fields_index(cur_z-1, cur_y-1, cur_x-1));
-                                    }
-                                    to_explode.add(fields_index(cur_z-1, cur_y-1, cur_x));
-                                    if(cur_x < x_width - 1) {
-                                        to_explode.add(fields_index(cur_z-1, cur_y-1, cur_x+1));
-                                    }
-                                }
-                                if(cur_x > 0) {
-                                    to_explode.add(fields_index(cur_z-1, cur_y, cur_x-1));
-                                }
-                                to_explode.add(fields_index(cur_z-1, cur_y, cur_x));
-                                if(cur_x < x_width - 1) {
-                                    to_explode.add(fields_index(cur_z-1, cur_y, cur_x+1));
-                                }
-        
-                                if(cur_y < y_width - 1) {
-                                    if(cur_x > 0) {
-                                        to_explode.add(fields_index(cur_z-1, cur_y+1, cur_x-1));
-                                    }
-                                    to_explode.add(fields_index(cur_z-1, cur_y+1, cur_x));
-                                    if(cur_x < x_width - 1) {
-                                        to_explode.add(fields_index(cur_z-1, cur_y+1, cur_x+1));
-                                    }
-                                }
-                            }
-                            if(cur_y > 0) {
-                                if(cur_x > 0) {
-                                    to_explode.add(fields_index(cur_z, cur_y-1, cur_x-1));
-                                }
-                                to_explode.add(fields_index(cur_z, cur_y-1, cur_x));
-                                if(cur_x < x_width - 1) {
-                                    to_explode.add(fields_index(cur_z, cur_y-1, cur_x+1));
-                                }
-                            }
-                            if(cur_x > 0) {
-                                to_explode.add(fields_index(cur_z, cur_y, cur_x-1));
-                            }
-                            if(cur_x < x_width - 1) {
-                                to_explode.add(fields_index(cur_z, cur_y, cur_x+1));
-                            }
-
-                            if(cur_y < y_width - 1) {
-                                if(cur_x > 0) {
-                                    to_explode.add(fields_index(cur_z, cur_y+1, cur_x-1));
-                                }
-                                to_explode.add(fields_index(cur_z, cur_y+1, cur_x));
-                                if(cur_x < x_width - 1) {
-                                    to_explode.add(fields_index(cur_z, cur_y+1, cur_x+1));
-                                }
-                            }
-                            if(cur_z < z_width - 1) {
-                                if(cur_y > 0) {
-                                    if(cur_x > 0) {
-                                        to_explode.add(fields_index(cur_z+1, cur_y-1, cur_x-1));
-                                    }
-                                    to_explode.add(fields_index(cur_z+1, cur_y-1, cur_x));
-                                    if(cur_x < x_width - 1) {
-                                        to_explode.add(fields_index(cur_z+1, cur_y-1, cur_x+1));
-                                    }
-                                }
-                                if(cur_x > 0) {
-                                    to_explode.add(fields_index(cur_z+1, cur_y, cur_x-1));
-                                }
-                                to_explode.add(fields_index(cur_z+1, cur_y, cur_x));
-                                if(cur_x < x_width - 1) {
-                                    to_explode.add(fields_index(cur_z+1, cur_y, cur_x+1));
-                                }
-        
-                                if(cur_y < y_width - 1) {
-                                    if(cur_x > 0) {
-                                        to_explode.add(fields_index(cur_z+1, cur_y+1, cur_x-1));
-                                    }
-                                    to_explode.add(fields_index(cur_z+1, cur_y+1, cur_x));
-                                    if(cur_x < x_width - 1) {
-                                        to_explode.add(fields_index(cur_z+1, cur_y+1, cur_x+1));
-                                    }
-                                }
-                            }
-                        });
-
-                        to_explode.forEach((f) => {
-                            if(GAME_JSON[parseInt(f.getAttribute('z'))][parseInt(f.getAttribute('y'))][parseInt(f.getAttribute('x'))] == EMPTY) {
-                                f.classList.replace('empty', 'shot');
-                            }
-                        })
-
-                        if (check_for_win()) {
-                            alert(`Wygrałeś! Wynik: ${Math.max(score*(z_width > 1 ? 5 : 1) - x_width * y_width * z_width, 0)} (max(kliknięcia - ilość pól, 0))\nSpoglądaj teraz na swoje zwycięstwo, lub utwórz nową grę aby spróbować ponownie...`)
+                    let shots = [[z, y, x]];
+                    if(z_width > 1) {
+                        if(y > 0) {
+                            shots.push([z, y-1, x]);
+                        }
+                        if(y < y_width - 1) {
+                            shots.push([z, y+1, x]);
+                        }
+                        if(x > 0) {
+                            shots.push([z, y, x-1]);
+                        }
+                        if(x < x_width - 1) {
+                            shots.push([z, y, x+1]);
+                        }
+                        if(z > 0) {
+                            shots.push([z-1, y, x]);
+                        }
+                        if(z < z_width - 1) {
+                            shots.push([z+1, y, x]);
                         }
                     }
+                    // console.log(shots); 
+                    shots.forEach(([s_z, s_y, s_x]) => {
+                        switch(GAME_JSON[s_z][s_y][s_x]) {
+                            case EMPTY:
+                                fields_index(s_z, s_y, s_x).classList.replace("empty", "shot");
+                                score += 1;
+                                break;
+                            case SHIP:
+                                fields_index(s_z, s_y, s_x).classList.replace("empty", "shipshot");
+                                score += 1;
+                                break;
+                        }
+                        
+                        let search = bfs(s_z, s_y, s_x);
+                        if(!search[0]) {
+                            let to_explode = new Set();
+                            if(search[1].length) search[1].forEach(el => {
+                                let [cur_z, cur_y, cur_x] = el;
+                                if(cur_z > 0) {
+                                    if(cur_y > 0) {
+                                        if(cur_x > 0) {
+                                            to_explode.add(fields_index(cur_z-1, cur_y-1, cur_x-1));
+                                        }
+                                        to_explode.add(fields_index(cur_z-1, cur_y-1, cur_x));
+                                        if(cur_x < x_width - 1) {
+                                            to_explode.add(fields_index(cur_z-1, cur_y-1, cur_x+1));
+                                        }
+                                    }
+                                    if(cur_x > 0) {
+                                        to_explode.add(fields_index(cur_z-1, cur_y, cur_x-1));
+                                    }
+                                    to_explode.add(fields_index(cur_z-1, cur_y, cur_x));
+                                    if(cur_x < x_width - 1) {
+                                        to_explode.add(fields_index(cur_z-1, cur_y, cur_x+1));
+                                    }
+            
+                                    if(cur_y < y_width - 1) {
+                                        if(cur_x > 0) {
+                                            to_explode.add(fields_index(cur_z-1, cur_y+1, cur_x-1));
+                                        }
+                                        to_explode.add(fields_index(cur_z-1, cur_y+1, cur_x));
+                                        if(cur_x < x_width - 1) {
+                                            to_explode.add(fields_index(cur_z-1, cur_y+1, cur_x+1));
+                                        }
+                                    }
+                                }
+                                if(cur_y > 0) {
+                                    if(cur_x > 0) {
+                                        to_explode.add(fields_index(cur_z, cur_y-1, cur_x-1));
+                                    }
+                                    to_explode.add(fields_index(cur_z, cur_y-1, cur_x));
+                                    if(cur_x < x_width - 1) {
+                                        to_explode.add(fields_index(cur_z, cur_y-1, cur_x+1));
+                                    }
+                                }
+                                if(cur_x > 0) {
+                                    to_explode.add(fields_index(cur_z, cur_y, cur_x-1));
+                                }
+                                if(cur_x < x_width - 1) {
+                                    to_explode.add(fields_index(cur_z, cur_y, cur_x+1));
+                                }
+    
+                                if(cur_y < y_width - 1) {
+                                    if(cur_x > 0) {
+                                        to_explode.add(fields_index(cur_z, cur_y+1, cur_x-1));
+                                    }
+                                    to_explode.add(fields_index(cur_z, cur_y+1, cur_x));
+                                    if(cur_x < x_width - 1) {
+                                        to_explode.add(fields_index(cur_z, cur_y+1, cur_x+1));
+                                    }
+                                }
+                                if(cur_z < z_width - 1) {
+                                    if(cur_y > 0) {
+                                        if(cur_x > 0) {
+                                            to_explode.add(fields_index(cur_z+1, cur_y-1, cur_x-1));
+                                        }
+                                        to_explode.add(fields_index(cur_z+1, cur_y-1, cur_x));
+                                        if(cur_x < x_width - 1) {
+                                            to_explode.add(fields_index(cur_z+1, cur_y-1, cur_x+1));
+                                        }
+                                    }
+                                    if(cur_x > 0) {
+                                        to_explode.add(fields_index(cur_z+1, cur_y, cur_x-1));
+                                    }
+                                    to_explode.add(fields_index(cur_z+1, cur_y, cur_x));
+                                    if(cur_x < x_width - 1) {
+                                        to_explode.add(fields_index(cur_z+1, cur_y, cur_x+1));
+                                    }
+            
+                                    if(cur_y < y_width - 1) {
+                                        if(cur_x > 0) {
+                                            to_explode.add(fields_index(cur_z+1, cur_y+1, cur_x-1));
+                                        }
+                                        to_explode.add(fields_index(cur_z+1, cur_y+1, cur_x));
+                                        if(cur_x < x_width - 1) {
+                                            to_explode.add(fields_index(cur_z+1, cur_y+1, cur_x+1));
+                                        }
+                                    }
+                                }
+                            });
+    
+                            to_explode.forEach((f) => {
+                                if(GAME_JSON[parseInt(f.getAttribute('z'))][parseInt(f.getAttribute('y'))][parseInt(f.getAttribute('x'))] == EMPTY) {
+                                    f.classList.replace('empty', 'shot');
+                                }
+                            })
+    
+                            if (check_for_win()) {
+                                alert(`Wygrałeś! Wynik: ${Math.max(score*(z_width > 1 ? 5 : 1) - x_width * y_width * z_width, 0)} (max(kliknięcia - ilość pól, 0))\nSpoglądaj teraz na swoje zwycięstwo, lub utwórz nową grę aby spróbować ponownie...`)
+                            }
+                        }
+                    })
                 }, { once: true });
                 total += 1;
             }
@@ -353,10 +381,39 @@ if(route == 'play') {
 }
 
 function saveState() {
+    let fields = [...document.querySelectorAll('.field')];
+    function fields_index(z, y, x) {
+        return fields[z * x_width * y_width + y * x_width + x];
+    }
+    
     let dims = atob(TEMPLATE_STR).split(';')[0].replace('TEMPLATE', '');
-
-    // console.log(dims + ';' + JSON.stringify(GAME_JSON));
-    window.location.href = window.location.toString().split('/').slice(0, -1).join('/') + '?route=save&payload=' + btoa(dims + ';' + JSON.stringify(GAME_JSON)).replace('=', '-');
+    let parsed = dims.split(',');
+    let z_width = parseInt(parsed[0]);
+    let y_width = parseInt(parsed[1]);
+    let x_width = parseInt(parsed[2]);
+    
+    // console.log(z_width, y_width, x_width);
+    let out=[];
+    for (let z = 0; z < z_width; z++) {
+        out.push([]);
+        for (let y = 0; y < y_width; y++) {
+            out[z].push([]);
+            for (let x = 0; x < x_width; x++) {
+                let el = fields_index(z, y, x);
+                if(el.classList.contains('shipshot')) {
+                    out[z][y].push(SHIPSHOT);
+                } else if(el.classList.contains('empty') || GAME_JSON[z][y][x] == SHIP) {
+                    if(GAME_JSON[z][y][x] == SHIP) out[z][y].push(SHIP);
+                    else out[z][y].push(EMPTY);
+                } else if(el.classList.contains('shot')) {
+                    out[z][y].push(SHOT);
+                } else if(el.classList.contains('ship')) {
+                    out[z][y].push(SHIP);
+                } 
+            }
+        }   
+    }
+    window.location.href = window.location.toString().split('/').slice(0, -1).join('/') + '?route=save&payload=' + btoa(dims + ';' + JSON.stringify(out)).replace('=', '-');
 }
 
 function saveTemplate() {

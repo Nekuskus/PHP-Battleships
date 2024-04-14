@@ -481,6 +481,7 @@
             $y_width = $dims[1];
             $x_width = $dims[2];
 
+            // echo "<script>console.log('{$s}');</script>";
             $chars = str_split($spl[1]); //$length == 1 by default
             $chars = array_map(function ($c) {
                 return intval($c);
@@ -675,7 +676,13 @@
             for($y=0; $y < $game->y_width; $y++) {
                 echo "<div class='cell label' style='visibility: {$coord_visibility};'><span class='coord'>".getNameFromNumber($y)."</span></div>";
                 for ($x=0; $x < $game->x_width; $x++) { 
-                    echo "<div z='{$z}' y='{$y}' x='{$x}' class='cell field empty' style='$outline'></div>";
+                    if($game->inner[$z][$y][$x] == Field::ShipShot) {
+                        echo "<div z='{$z}' y='{$y}' x='{$x}' class='cell field shipshot' style='$outline'></div>";
+                    } else if($game->inner[$z][$y][$x] == Field::Shot) {
+                        echo "<div z='{$z}' y='{$y}' x='{$x}' class='cell field shot' style='$outline'></div>";
+                    } else {
+                        echo "<div z='{$z}' y='{$y}' x='{$x}' class='cell field empty' style='$outline'></div>";
+                    }
                 }
             }
             echo "</div>";
