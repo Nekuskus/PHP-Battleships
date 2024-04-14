@@ -10,6 +10,12 @@ span.cell.full {
     background-color: beige;
 } */
 
+kbd {
+    border-radius: 2px;
+    padding: 2px;
+    border: 1px solid black;
+}
+
 a {
     text-decoration: none;
     color: grey;
@@ -102,6 +108,7 @@ div#game {
     padding: 10%;
     width: fit-content;
     height: fit-content;
+    overflow: hidden;
     border-radius: 10px;
     border: 4px solid black;
 }
@@ -111,7 +118,9 @@ div#game div.layer {
     grid-template-rows: var(--rows);
     grid-template-columns: var(--columns);
     gap: 1px;
-
+    transition: 0.5s;
+    grid-column: 1;
+    grid-row: 1;
 }
 
 div#game div.layer div.cell {
@@ -137,9 +146,13 @@ div#game div.layer div.cell.empty {
 }
 
 div#game div.layer div.cell.shot {
-    background-color: rgb(146, 144, 144);
+    background-color: rgba(146, 144, 144, 0.329);
 }
 
 div#game div.layer div.cell.shipshot {
     background-color: rgb(170, 134, 80)
+}
+
+.no-events {
+    pointer-events: none;
 }
