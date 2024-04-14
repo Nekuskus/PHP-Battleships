@@ -43,6 +43,11 @@ function saveTemplate() {
     window.location.href = window.location.toString().split('/').slice(0, -1).join('/') + '?route=save&payload=' + TEMPLATE_STR.replace('=', '-');
 }
 
+function saveState() {
+    
+    // window.location.href = window.location.toString().split('/').slice(0, -1).join('/') + '?route=save&payload=' + TEMPLATE_STR.replace('=', '-');
+}
+
 function loadfile() {
     let file = document.getElementById('select-savefile').value;
     let next = document.getElementById('ui-type').value;
